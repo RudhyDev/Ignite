@@ -6,6 +6,9 @@ app.listen(process.env.PORT || 3333, ()=>{
     console.log("Server started");
 })
 
-app.get('/hello', (req, res) => {
-    res.send("Hello World");
+app.get('/courses', (req, res)=>{
+    const query = req.query;
+    console.log(query);
+    return res.json(['Node.js', 'React.js', 'React Native']);
 })
+
