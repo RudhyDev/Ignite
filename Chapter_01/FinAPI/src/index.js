@@ -130,6 +130,9 @@ app.delete('/account', verifyIfExistsAccountCpf, (req, res) => {
 	const { customer } = req;
 	customers.splice(customers.indexOf(customer), 1);
 	return res.status(204).send();
+
+
+	//comment
 })
 
 app.listen(5555);
