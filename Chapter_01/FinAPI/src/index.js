@@ -5,6 +5,7 @@ app.use(express.json());
 
 const customers = [];
 
+//Middleware
 function verifyIfExistsAccountCpf(req, res, next) {
 	const { cpf } = req.headers;
 
@@ -14,11 +15,24 @@ function verifyIfExistsAccountCpf(req, res, next) {
 		return res.status(404).json({ error: "Customer not found" });
 	}
 
-  req.customer = customer;
+	req.customer = customer;
 
-  return next()
+	return next();
 }
 
+function getBalance(statement) {
+	const balance = statement.reduce((acc, operation) => {
+		if (operation.type === "credit") {
+			return acc + operation.value;
+		} else {
+			return acc - operation.value;
+		}
+	}, 0);
+
+	return balance;
+}
+
+//Create a new customer
 app.post("/account", (req, res) => {
 	const { cpf, name } = req.body;
 
@@ -39,9 +53,49 @@ app.post("/account", (req, res) => {
 	return res.status(201).send();
 });
 
+//Get all customers
 app.get("/statement", verifyIfExistsAccountCpf, (req, res) => {
-  const { customer } = req;
+	const { customer } = req;
 	return res.json(customer.statement);
+});
+
+//Create deposit
+app.post("/deposit", verifyIfExistsAccountCpf, (req, res) => {
+	const { description, amount } = req.body;
+	const { customer } = req;
+
+	const statementOperation = {
+		description,
+		amount,
+		created_at: new Date(),
+		type: "credit",
+	};
+
+	customer.statement.push(statementOperation);
+
+	return res.status(201).json(statementOperation);
+});
+
+//Withdraw
+app.post("/withdraw", verifyIfExistsAccountCpf, (req, res) => {
+	const { amount } = req.body;
+	const { customer } = req;
+
+	const balance = getBalance(customer.statement);
+
+	if (balance < amount) {
+		return res.status(400).json({ error: "Insufficient funds" });
+	}
+
+	const statementOperation = {
+		amount,
+		created_at: new Date(),
+		type: "debit",
+	};
+
+	customer.statement.push(statementOperation);
+
+	return res.status(201).json(statementOperation);
 });
 
 app.listen(5555);
