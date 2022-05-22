@@ -1,10 +1,12 @@
 import express from 'express';
-import { CreateCourse } from './routes';
 
 const app = express();
 
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+const port = process.env.PORT || 3333;
+app.listen(3333, () => {
+  console.log(`Server listening on port ${port}`);
 })
 
-app.get("/", CreateCourse);
+app.get("/health", (req, res)=>{
+  res.send("OK");
+} );
