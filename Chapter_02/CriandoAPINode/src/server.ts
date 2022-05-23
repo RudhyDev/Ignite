@@ -1,12 +1,13 @@
 import express from 'express';
+import { categoriesRoutes } from './routes/categories.routes';
 
 const app = express();
+app.use(express.json());
 
-const port = process.env.PORT || 3333;
-app.listen(3333, () => {
+const port = process.env.PORT || 5555;
+
+app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 })
 
-app.get("/health", (req, res)=>{
-  res.send("OK");
-} );
+app.use("/categories", categoriesRoutes);
